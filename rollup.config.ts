@@ -1,38 +1,67 @@
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import sourceMaps from 'rollup-plugin-sourcemaps'
-import camelCase from 'lodash.camelcase'
+// import camelCase from 'lodash.camelcase'
 import typescript from 'rollup-plugin-typescript2'
 import json from 'rollup-plugin-json'
+import { IndexKind } from 'typescript'
 
 const pkg = require('./package.json')
 
-const libraryName = 'leoric'
+export default [
+  {
+    input: `src/index.ts`,
+    output: [
+      { file: pkg.main, name: 'index.ts', format: 'umd', sourcemap: true },
+      { file: pkg.module, format: 'es', sourcemap: true }
+    ],
+    // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
+    external: [],
+    watch: {
+      include: 'src/**'
+    },
+    plugins: [
+      // Allow json resolution
+      json(),
+      // Compile TypeScript files
+      typescript({ useTsconfigDeclarationDir: true }),
+      // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
+      commonjs(),
+      // Allow node_modules resolution, so you can use 'external' to control
+      // which external modules to include in the bundle
+      // https://github.com/rollup/rollup-plugin-node-resolve#usage
+      resolve(),
 
-export default {
-  input: `src/${libraryName}.ts`,
-  output: [
-    { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-    { file: pkg.module, format: 'es', sourcemap: true },
-  ],
-  // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: [],
-  watch: {
-    include: 'src/**',
+      // Resolve source maps to the original source
+      sourceMaps()
+    ]
   },
-  plugins: [
-    // Allow json resolution
-    json(),
-    // Compile TypeScript files
-    typescript({ useTsconfigDeclarationDir: true }),
-    // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
-    commonjs(),
-    // Allow node_modules resolution, so you can use 'external' to control
-    // which external modules to include in the bundle
-    // https://github.com/rollup/rollup-plugin-node-resolve#usage
-    resolve(),
+  // {
+  //   input: `src/router/index.ts`,
+  //   output: [
+  //     { file: 'dist/router/index.umd.js', name: 'index.ts', format: 'umd', sourcemap: true },
+  //     { file: 'dist/router/index.es5.js', format: 'es', sourcemap: true }
+  //   ],
+  //   external: ['react-router-dom'],
+  //   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
+  //   watch: {
+  //     include: 'src/**'
+  //   },
+  //   plugins: [
+  //     // Allow json resolution
+  //     json(),
+  //     // Compile TypeScript files
+  //     typescript({ useTsconfigDeclarationDir: true }),
 
-    // Resolve source maps to the original source
-    sourceMaps(),
-  ],
-}
+  //     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
+  //     commonjs(),
+  //     // Allow node_modules resolution, so you can use 'external' to control
+  //     // which external modules to include in the bundle
+  //     // https://github.com/rollup/rollup-plugin-node-resolve#usage
+  //     resolve(),
+
+  //     // Resolve source maps to the original source
+  //     sourceMaps()
+  //   ]
+  // }
+]
