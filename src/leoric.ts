@@ -1,4 +1,4 @@
-import { combineReducers, AnyAction, compose } from 'redux'
+import { combineReducers, AnyAction } from 'redux'
 import { createReducer } from 'redux-starter-kit'
 
 export default class leoric {
