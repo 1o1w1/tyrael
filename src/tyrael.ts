@@ -1,7 +1,7 @@
 import { combineReducers, AnyAction } from 'redux'
 import { createReducer } from 'redux-starter-kit'
 
-export default class leoric {
+export default class tyrael {
   private effects: any
   staticModels: any = []
   asyncModels: any = []
