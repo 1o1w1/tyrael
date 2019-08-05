@@ -1,3 +1,3 @@
 export { default as modelExtend } from './modelExtend'
-export { default } from './tyrael'
-export { State, Effects, Effect, BaseModel, Model, ModelExtend } from './modelExtend'
+export { default, State, Effects, Effect, BaseModel, Model } from './tyrael'
+export { ModelExtend } from './modelExtend'

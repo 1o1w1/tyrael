@@ -1,31 +1,106 @@
-import { combineReducers, AnyAction } from 'redux'
+import { combineReducers, AnyAction, Dispatch, MiddlewareAPI, ReducersMapObject } from 'redux'
 import { createReducer } from 'redux-starter-kit'
+import { original } from 'immer'
 
-export default class tyrael {
-  private effects: any
-  staticModels: any = []
-  asyncModels: any = []
+export interface State {
+  [key: string]: any
+}
 
-  constructor(staticModels: any) {
-    const { effects } = splitModel(staticModels)
+export interface Effects {
+  [key: string]: Effect
+}
+export interface Effect {
+  (dispatch: any, getState: any): any
+}
+
+export interface BaseModel {
+  state: State
+  reducers: ReducersMapObject<any, AnyAction>
+  effects: Effects
+}
+export interface Model extends BaseModel {
+  namespace: string
+}
+
+export interface Middleware<DispatchExt = {}, S = any, D extends Dispatch = Dispatch> {
+  (api: MiddlewareAPI<D, S>): (next: Dispatch<AnyAction>) => (action: any, ...arg: any) => any
+}
+
+interface Tyrael {
+  dispatchEnhancer: Middleware
+}
+
+export default class tyrael implements Tyrael {
+  private effects: Effects
+  options: any
+  asyncModels: Model[] = []
+  staticModels: Model[] = [
+    {
+      namespace: 'loading',
+      state: {
+        effects: {},
+        models: {},
+        global: false
+      },
+      effects: {},
+      reducers: {
+        start: (state, { params }) => {
+          if (state.effects[params]) {
+            state.effects[params]++
+          } else {
+            state.effects[params] = 1
+          }
+          state.global = true
+          state.models[params.split('/')[0]] = true
+        },
+        end: (state, { params }) => {
+          state.effects[params]--
+          state.models = {}
+          Object.keys(state.effects).forEach((key: string) => {
+            const effect = state.effects[key]
+            if (effect !== 0) {
+              state.models[key.split('/')[0]] = true
+            }
+          })
+          state.global = Object.values(state.models).some((model: any) => model)
+        }
+      }
+    }
+  ]
+
+  constructor(initModels: any, options?: object) {
+    this.staticModels = [...initModels, ...this.staticModels]
+    const defalutOptions = { loading: true }
+    this.options = { ...defalutOptions, ...options }
+    const { effects } = splitModel(this.staticModels)
     this.effects = effects
-    this.staticModels = staticModels
   }
 
   getStaticReducer = () => {
     const { reducer } = splitModel(this.staticModels)
     return reducer
   }
-  dispatchEnhancer = ({ dispatch, getState }: { dispatch: any; getState: any }) => (next: any) => (
-    action: any,
-    params: any
-  ) => {
-    if (typeof action == 'string') {
-      action = {
-        type: action,
-        params
-      }
+
+  dispatchEnhancer_loadding = ({ dispatch, getState }: { dispatch: Dispatch; getState: any }) => (
+    next: Dispatch<AnyAction>
+  ) => (action: any, params: any) => {
+    if (this.effects[action.type]) {
+      const { loading } = this.options
+
+      loading && dispatch({ type: `loading/start`, params: action.type })
+
+      const res = next(action)
+
+      loading && dispatch({ type: `loading/end`, params: action.type })
+
+      return res
     }
+    return next(action)
+  }
+
+  dispatchEnhancer = ({ dispatch, getState }: { dispatch: Dispatch; getState: any }) => (
+    next: Dispatch<AnyAction>
+  ) => (action: any, params: any) => {
     if (this.effects[action.type]) {
       return this.effects[action.type](action, { dispatch, getState })
     }
@@ -39,12 +114,12 @@ export default class tyrael {
       this.effects = effects
       store.replaceReducer(reducer)
     }
-    const injectModels = (indectModels: any) => {
-      const injectModels = this.modelsFilter(indectModels)
-      if (injectModels.length == 0) {
+    const injectModels = (models: any) => {
+      const _injectModels = this.modelsFilter(models)
+      if (_injectModels.length == 0) {
         return
       }
-      this.asyncModels = [...this.asyncModels, ...injectModels]
+      this.asyncModels = [...this.asyncModels, ..._injectModels]
       replaceModels([...this.staticModels, ...this.asyncModels])
     }
 
@@ -55,10 +130,10 @@ export default class tyrael {
     }
   }
 
-  private modelsFilter(indectModels: any) {
-    const models = [...this.staticModels, ...this.asyncModels]
-    return indectModels.filter((injectModel: any) =>
-      models.every((model: any) => {
+  private modelsFilter(models_inject: any) {
+    const allModels = [...this.staticModels, ...this.asyncModels]
+    return models_inject.filter((injectModel: any) =>
+      allModels.every((model: any) => {
         if (injectModel.namespace == model.namespace) {
           if (injectModel == model) {
             return false

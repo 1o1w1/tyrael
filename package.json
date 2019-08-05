@@ -1,6 +1,6 @@
 {
   "name": "tyrael",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "description": "",
   "main": "dist/index.umd.js",
   "typings": "dist/types/index.d.ts",
@@ -90,7 +90,6 @@
   "peerDependencies": {
     "redux": "^4.0.1",
     "redux-starter-kit": "^0.6.1"
-
   },
   "devDependencies": {
     "@commitlint/cli": "^7.1.2",
@@ -109,6 +108,8 @@
     "lodash.camelcase": "^4.3.0",
     "prettier": "^1.14.3",
     "prompt": "^1.0.0",
+    "redux": "^4.0.4",
+    "redux-starter-kit": "^0.6.3",
     "replace-in-file": "^3.4.2",
     "rimraf": "^2.6.2",
     "rollup": "^1.15.6",
@@ -128,6 +129,5 @@
     "typedoc": "^0.12.0",
     "typescript": "^3.2.2"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

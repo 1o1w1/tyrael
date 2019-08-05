@@ -1,24 +1,5 @@
-import { ReducersMapObject, AnyAction } from 'redux'
+import { BaseModel } from './tyrael'
 
-export interface State {
-  [key: string]: any
-}
-
-export interface Effects {
-  [key: string]: Effect
-}
-export interface Effect {
-  (dispatch: any, getState: any): any
-}
-
-export interface BaseModel {
-  state: State
-  reducers: ReducersMapObject<any, AnyAction>
-  effects: Effects
-}
-export interface Model extends BaseModel {
-  namespace: string
-}
 export interface ModelExtend extends BaseModel {
   namespace?: string
 }
