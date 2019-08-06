@@ -1,6 +1,5 @@
 import { combineReducers, AnyAction, Dispatch, MiddlewareAPI, ReducersMapObject } from 'redux'
 import { createReducer } from 'redux-starter-kit'
-import { original } from 'immer'
 
 export interface State {
   [key: string]: any
@@ -31,8 +30,8 @@ interface Tyrael {
 }
 
 export default class tyrael implements Tyrael {
-  private effects: Effects
-  options: any
+  private effects: Effects = {}
+  options: any = {}
   asyncModels: Model[] = []
   staticModels: Model[] = [
     {
@@ -68,12 +67,12 @@ export default class tyrael implements Tyrael {
     }
   ]
 
-  constructor(initModels: any, options?: object) {
-    this.staticModels = [...initModels, ...this.staticModels]
+  constructor(options?: object) {
+    // this.staticModels = [...initModels, ...this.staticModels]
     const defalutOptions = { loading: true }
     this.options = { ...defalutOptions, ...options }
-    const { effects } = splitModel(this.staticModels)
-    this.effects = effects
+    // const { effects } = splitModel(this.staticModels)
+    // this.effects = effects
   }
 
   getStaticReducer = () => {
@@ -86,13 +85,14 @@ export default class tyrael implements Tyrael {
   ) => (action: any, params: any) => {
     if (this.effects[action.type]) {
       const { loading } = this.options
-
       loading && dispatch({ type: `loading/start`, params: action.type })
-
       const res = next(action)
-
-      loading && dispatch({ type: `loading/end`, params: action.type })
-
+        .catch((e: any) => {
+          return Promise.reject(e)
+        })
+        .finally(() => {
+          loading && dispatch({ type: `loading/end`, params: action.type })
+        })
       return res
     }
     return next(action)
@@ -101,8 +101,11 @@ export default class tyrael implements Tyrael {
   dispatchEnhancer = ({ dispatch, getState }: { dispatch: Dispatch; getState: any }) => (
     next: Dispatch<AnyAction>
   ) => (action: any, params: any) => {
-    if (this.effects[action.type]) {
-      return this.effects[action.type](action, { dispatch, getState })
+    const effect = this.effects[action.type]
+    if (effect) {
+      return Promise.resolve(effect(action, { dispatch, getState })).catch((e: any) => {
+        return Promise.reject(e)
+      })
     }
     return next(action)
   }
@@ -114,7 +117,7 @@ export default class tyrael implements Tyrael {
       this.effects = effects
       store.replaceReducer(reducer)
     }
-    const injectModels = (models: any) => {
+    const injectModels = (models: Array<Model>) => {
       const _injectModels = this.modelsFilter(models)
       if (_injectModels.length == 0) {
         return
@@ -130,10 +133,10 @@ export default class tyrael implements Tyrael {
     }
   }
 
-  private modelsFilter(models_inject: any) {
+  private modelsFilter(models_inject: Array<Model>) {
     const allModels = [...this.staticModels, ...this.asyncModels]
-    return models_inject.filter((injectModel: any) =>
-      allModels.every((model: any) => {
+    return models_inject.filter((injectModel: Model) =>
+      allModels.every((model: Model) => {
         if (injectModel.namespace == model.namespace) {
           if (injectModel == model) {
             return false
