@@ -86,13 +86,9 @@ export default class tyrael implements Tyrael {
     if (this.effects[action.type]) {
       const { loading } = this.options
       loading && dispatch({ type: `loading/start`, params: action.type })
-      const res = next(action)
-        .catch((e: any) => {
-          return Promise.reject(e)
-        })
-        .finally(() => {
-          loading && dispatch({ type: `loading/end`, params: action.type })
-        })
+      const res = next(action).finally(() => {
+        loading && dispatch({ type: `loading/end`, params: action.type })
+      })
       return res
     }
     return next(action)
@@ -103,9 +99,7 @@ export default class tyrael implements Tyrael {
   ) => (action: any, params: any) => {
     const effect = this.effects[action.type]
     if (effect) {
-      return Promise.resolve(effect(action, { dispatch, getState })).catch((e: any) => {
-        return Promise.reject(e)
-      })
+      return Promise.resolve(effect(action, { dispatch, getState }))
     }
     return next(action)
   }
