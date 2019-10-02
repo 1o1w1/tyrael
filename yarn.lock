@@ -7220,9 +7220,9 @@ redux-immutable-state-invariant@^2.1.0:
     invariant "^2.1.0"
     json-stringify-safe "^5.0.1"
 
-redux-starter-kit@^0.6.3:
+redux-starter-kit@^0.6.1:
   version "0.6.3"
-  resolved "https://registry.yarnpkg.com/redux-starter-kit/-/redux-starter-kit-0.6.3.tgz#bafde49b8ff35dff0f4f43700d7ed9973754c96e"
+  resolved "https://registry.npmjs.org/redux-starter-kit/-/redux-starter-kit-0.6.3.tgz#bafde49b8ff35dff0f4f43700d7ed9973754c96e"
   integrity sha512-A+7UjgmFrWdKksHl8xTGxDw6Bv8QJ+wrTubBscFNs5gIezGHOdwjqTTSVX4xMgQkgPtVfSPj/Bo+5o6f71/eTA==
   dependencies:
     immer "^2.1.5"
@@ -7237,7 +7237,7 @@ redux-thunk@^2.2.0:
   resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-2.3.0.tgz#51c2c19a185ed5187aaa9a2d08b666d0d6467622"
   integrity sha512-km6dclyFnmcvxhAcrQV2AkZmPQjzPDjgVlQtR0EQjxZPyJ0BnMf3in1ryuR8A2qU0HldVRfxYXbFSKlI3N7Slw==
 
-redux@^4.0.0, redux@^4.0.4:
+redux@^4.0.0:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.4.tgz#4ee1aeb164b63d6a1bcc57ae4aa0b6e6fa7a3796"
   integrity sha512-vKv4WdiJxOWKxK0yRoaK3Y4pxxB0ilzVx6dszU2W8wLxlb2yikRph4iV/ymtdJ6ZxpBLFbyrxklnT5yBbQSl3Q==

@@ -83,12 +83,17 @@ export default class tyrael implements Tyrael {
   dispatchEnhancer_loadding = ({ dispatch, getState }: { dispatch: Dispatch; getState: any }) => (
     next: Dispatch<AnyAction>
   ) => (action: any, params: any) => {
-    if (this.effects[action.type]) {
-      const { loading } = this.options
-      loading && dispatch({ type: `loading/start`, params: action.type })
-      const res = next(action).finally(() => {
-        loading && dispatch({ type: `loading/end`, params: action.type })
-      })
+    const { loading } = this.options
+    if (this.effects[action.type] && loading) {
+      dispatch({ type: `loading/start`, params: action.type })
+      const res = next(action)
+        .then(() => {
+          dispatch({ type: `loading/end`, params: action.type })
+        })
+        .catch((e: any) => {
+          console.error(e)
+          dispatch({ type: `loading/end`, params: action.type })
+        })
       return res
     }
     return next(action)
